@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "950715923367",
+    "project_id": "richprinters-40602",
+    "storage_bucket": "richprinters-40602.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950715923367:android:0df1a24ac83e13195c1482",
+        "android_client_info": {
+          "package_name": "com.example.richprinters"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuqvbNDueHPcKhXWKUQwtDV1zmLfKYiL4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,52 @@
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics") // Google services plugin
+}
+
+android {
+    namespace = "com.example.richprinters" // Ensure this matches your applicationId
+    compileSdk = 34 // Set this to the latest SDK version
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8" // Specify as string for Kotlin options
+    }
+
+    defaultConfig {
+        applicationId = "com.example.richprinters" // Ensure this matches your package name
+        minSdk = 23 // Minimum SDK version required by Firebase
+        targetSdk = 34 // Adjust to your latest target SDK version
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+dependencies {
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+
+    // Add the dependencies for Firebase products you want to use
+    implementation("com.google.firebase:firebase-analytics") // For Firebase Analytics
+    implementation("com.google.firebase:firebase-auth") // For Firebase Authentication
+    implementation("com.google.firebase:firebase-firestore") // For Firestore
+    implementation("com.google.firebase:firebase-database") // For Realtime Database
+    implementation("com.google.firebase:firebase-crashlytics") // For Crashlytics
+    
+}
+
+// This should not be used in Kotlin DSL; it should be included in the plugins block at the top
+// apply(plugin = "com.google.gms.google-services") 
