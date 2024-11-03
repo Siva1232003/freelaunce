@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'logger.dart';
+
 
 class SignInSignUpPage extends StatefulWidget {
   @override
   _SignInSignUpPageState createState() => _SignInSignUpPageState();
+  
 }
 
 class _SignInSignUpPageState extends State<SignInSignUpPage> {
@@ -328,10 +331,12 @@ class DividerWithText extends StatelessWidget {
 class SocialButtons extends StatelessWidget {
   final Function signInWithGoogle;
 
-  const SocialButtons({Key? key, required this.signInWithGoogle}) : super(key: key);
-
+  const SocialButtons({Key? current_key, required this.signInWithGoogle}) : super(key: current_key);
+  
+  
   @override
   Widget build(BuildContext context) {
+    AppLogger.instance.i('key',key);
     return Column(
       children: [
         ElevatedButton(

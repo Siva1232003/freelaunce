@@ -12,7 +12,20 @@
           "package_name": "com.example.richprinters"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "950715923367-5d6g7e5fcbo0gj5ume3s30c7aesvt5t2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.richprinters",
+            "certificate_hash": "0c2ca4dd331854db304e9393925a73d814e4acdc"
+          }
+        },
+        {
+          "client_id": "950715923367-67e9pq1l489fq6s5s8fuf3vj06shd647.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCuqvbNDueHPcKhXWKUQwtDV1zmLfKYiL4"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "950715923367-67e9pq1l489fq6s5s8fuf3vj06shd647.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

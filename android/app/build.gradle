@@ -4,6 +4,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics") // Google services plugin
+    
 }
 
 android {
@@ -46,7 +47,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database") // For Realtime Database
     implementation("com.google.firebase:firebase-crashlytics") // For Crashlytics
     
+    
 }
 
 // This should not be used in Kotlin DSL; it should be included in the plugins block at the top
-// apply(plugin = "com.google.gms.google-services") 
+ 
