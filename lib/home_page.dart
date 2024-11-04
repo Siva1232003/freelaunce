@@ -6,6 +6,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -30,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -63,9 +65,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
+          icon: Icon(Icons.menu, color: Color(0xFFCFF008)),
           onPressed: () {
-            Scaffold.of(context).openDrawer(); // Open the drawer
+            _scaffoldKey.currentState?.openDrawer(); // Open the drawer
           },
         ),
       ),
@@ -87,14 +89,25 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(height: 20),
           // Text Section
-          Text(
-            'Delivery at door step',
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Delivered within 3 days',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Delivery at door step',
+                    style: TextStyle(color: Colors.white, fontSize: 30),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Delivered within 3 days',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ],
+              ),
+            ),
           ),
           SizedBox(height: 20),
           // Buttons Section
