@@ -48,6 +48,9 @@ dev_dependencies:
   cloud_firestore: ^5.4.4    # For Firestore database
   google_sign_in: ^6.1.2
   flutter_facebook_auth: ^7.1.1
+  image_picker: ^0.8.5+3  # Add this dependency for file picking
+  path_provider: ^2.0.11  # Optional, if you need to handle file system paths
+  file_picker: ^5.2.3
   
     
 
@@ -77,6 +80,8 @@ flutter:
     - assets/google_logo.png
     - assets/get-in.png
     - assets/start1.jpg
+    - assets/bw.png
+    - assets/color.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'logger.dart';
 
 
@@ -18,6 +19,13 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+      
 
   void _showAlert(String message, {bool navigateToHome = false}) {
     showDialog(
@@ -92,6 +100,7 @@ class _SignInSignUpPageState extends State<SignInSignUpPage> {
       _showAlert("Error logging in with Google: $e");
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {

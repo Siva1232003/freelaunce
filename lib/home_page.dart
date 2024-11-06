@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'upload.dart'; // Import the Upload page
 
 class HomePage extends StatefulWidget {
   @override
@@ -53,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop(); 
+                          Navigator.of(context).pop();
                         },
                         child: Text('OK'),
                       ),
@@ -71,66 +72,122 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      body: Column(
-        children: [
-          // Carousel Section
-          Container(
-            height: 200,
-            child: PageView(
-              controller: _pageController,
-              scrollDirection: Axis.horizontal,
-              children: [
-                buildCarouselSlide('Slide 1'),
-                buildCarouselSlide('Slide 2'),
-                buildCarouselSlide('Slide 3'),
-                buildCarouselSlide('Slide 4'),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          // Text Section
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView(
+        // Make the content scrollable
+        child: Column(
+          children: [
+            // Carousel Section
+            Container(
+              height: 200,
+              child: PageView(
+                controller: _pageController,
+                scrollDirection: Axis.horizontal,
                 children: [
-                  Text(
-                    'Delivery at door step',
-                    style: TextStyle(color: Colors.white, fontSize: 30),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Delivered within 3 days',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
+                  buildCarouselSlide('Slide 1'),
+                  buildCarouselSlide('Slide 2'),
+                  buildCarouselSlide('Slide 3'),
+                  buildCarouselSlide('Slide 4'),
                 ],
               ),
             ),
-          ),
-          SizedBox(height: 20),
-          // Buttons Section
-          ElevatedButton(
-            onPressed: () {
-              // Add Color print action here
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFCFF008), // Button color
+            SizedBox(height: 20),
+            // Text Section
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery at door step',
+                      style: TextStyle(color: Colors.white, fontSize: 30),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Delivered within 3 days',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            child: Text('Click here for Color print'),
-          ),
-          SizedBox(height: 50),
-          ElevatedButton(
-            onPressed: () {
-              // Add B/W print action here
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFCFF008), // Button color
+            SizedBox(height: 20),
+            // Buttons Section with Images
+            Column(
+              children: [
+                // Container with a border for the first image
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color(0xFFCFF008), // Border color
+                      width: 4, // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        8), // Optional: for rounded corners
+                  ),
+                  child: Image.asset(
+                    'assets/color.png',
+                    height: 200,
+                    width: 200,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the Upload page for Color print
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Upload(selectedColor: 'Color'), // Pass color
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFCFF008), // Button color
+                  ),
+                  child: Text('Click here for Color print'),
+                ),
+                SizedBox(height: 30),
+                // Container with a border for the second image
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color(0xFFCFF008), // Border color
+                      width: 4, // Border width
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        8), // Optional: for rounded corners
+                  ),
+                  child: Image.asset(
+                    'assets/bw.png',
+                    height: 200,
+                    width: 200,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the Upload page for B/W print
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Upload(selectedColor: 'Black and white'), // Pass B/W
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFCFF008), // Button color
+                  ),
+                  child: Text('Click here for B/W print'),
+                ),
+                SizedBox(height: 20), // Add this SizedBox below the B/W print button
+              ],
             ),
-            child: Text('Click here for B/W print'),
-          ),
-        ],
+          ],
+        ),
       ),
       drawer: Drawer(
         backgroundColor: Colors.black,
