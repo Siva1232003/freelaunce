@@ -51,6 +51,7 @@ dev_dependencies:
   image_picker: ^0.8.5+3  # Add this dependency for file picking
   path_provider: ^2.0.11  # Optional, if you need to handle file system paths
   file_picker: ^5.2.3
+  flutter_colorpicker: ^1.0.3
   
     
 

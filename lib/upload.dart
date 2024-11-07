@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class Upload extends StatefulWidget {
   final String selectedColor;
@@ -15,11 +16,13 @@ class _UploadState extends State<Upload> {
   final ImagePicker _picker = ImagePicker();
   List<XFile>? _fileList = [];
   String selectedColor = "Black and White";
-  String selectedBinding = "Chart Binding";
+  String selectedBinding = "Chart Binding";  // Make sure this is initialized properly
   int numberOfCopies = 1;
 
   String? _radioValue = 'Single Side';
   String? _staplePin = 'No';
+
+  Color chosenColor = Color(0xFFCFF008);
 
   @override
   void initState() {
@@ -43,6 +46,35 @@ class _UploadState extends State<Upload> {
     }
   }
 
+  void _showColorPicker(BuildContext scaffoldContext) {
+    showDialog(
+      context: scaffoldContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pick a color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: chosenColor,
+              onColorChanged: (Color color) {
+                setState(() {
+                  chosenColor = color;
+                });
+              },
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Select'),
+              onPressed: () {
+                Navigator.of(scaffoldContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,19 +82,19 @@ class _UploadState extends State<Upload> {
         title: Text(
           'Upload',
           style: TextStyle(
-            fontWeight: FontWeight.bold,  // Make the text bold
-            color: Colors.white,  // Set header text color to white
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFFCFF008)),  // Back arrow color set to Color(0xFFCFF008)
+          icon: Icon(Icons.arrow_back, color: Color(0xFFCFF008)),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      backgroundColor: Colors.black,  // Set background color to black
+      backgroundColor: Colors.black,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -106,15 +138,15 @@ class _UploadState extends State<Upload> {
                             TextButton(
                               onPressed: () {},
                               style: TextButton.styleFrom(
-                                backgroundColor: Color(0xFFCFF008),  // Set background color for the view button
+                                backgroundColor: Color(0xFFCFF008),
                               ),
                               child: Text(
                                 'View',
-                                style: TextStyle(color: Colors.black),  // Text color inside the button
+                                style: TextStyle(color: Colors.black),
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.delete, color: Color(0xFFCFF008)),  // Delete icon color
+                              icon: Icon(Icons.delete, color: Color(0xFFCFF008)),
                               onPressed: () {
                                 setState(() {
                                   _fileList?.remove(file);
@@ -139,7 +171,7 @@ class _UploadState extends State<Upload> {
                         _radioValue = value;
                       });
                     },
-                    activeColor: Color(0xFFCFF008), // Radio button color
+                    activeColor: Color(0xFFCFF008),
                   ),
                   Text('Single Side', style: TextStyle(color: Colors.white)),
                   Radio<String>(
@@ -150,7 +182,7 @@ class _UploadState extends State<Upload> {
                         _radioValue = value;
                       });
                     },
-                    activeColor: Color(0xFFCFF008), // Radio button color
+                    activeColor: Color(0xFFCFF008),
                   ),
                   Text('Double Side', style: TextStyle(color: Colors.white)),
                 ],
@@ -165,9 +197,12 @@ class _UploadState extends State<Upload> {
                     onChanged: (String? value) {
                       setState(() {
                         _staplePin = value;
+                        if (_staplePin == 'Yes') {
+                          selectedBinding = '';  // Clear if staple pin is yes
+                        }
                       });
                     },
-                    activeColor: Color(0xFFCFF008), // Radio button color
+                    activeColor: Color(0xFFCFF008),
                   ),
                   Text('Yes', style: TextStyle(color: Colors.white)),
                   Radio<String>(
@@ -178,28 +213,33 @@ class _UploadState extends State<Upload> {
                         _staplePin = value;
                       });
                     },
-                    activeColor: Color(0xFFCFF008), // Radio button color
+                    activeColor: Color(0xFFCFF008),
                   ),
                   Text('No', style: TextStyle(color: Colors.white)),
                 ],
               ),
               Divider(color: Colors.white),
-              Text('Binding Type', style: TextStyle(fontSize: 18, color: Colors.white)),
-              DropdownButton<String>(
-                value: selectedBinding,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedBinding = newValue!;
-                  });
-                },
-                items: <String>['Chart Binding', 'Box Binding']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value, style: TextStyle(color: Colors.white)),
-                  );
-                }).toList(),
-              ),
+              if (_staplePin == 'No')
+                Column(
+                  children: [
+                    Text('Binding Type', style: TextStyle(fontSize: 18, color: Colors.white)),
+                    DropdownButton<String>(
+                      value: selectedBinding.isNotEmpty ? selectedBinding : null, // Handle initial value
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedBinding = newValue!;
+                        });
+                      },
+                      items: <String>['Chart Binding', 'Box Binding']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value, style: TextStyle(color: Colors.white)),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               SizedBox(height: 20),
               Row(
                 children: [
@@ -232,7 +272,7 @@ class _UploadState extends State<Upload> {
                   // Handle the 'Save & Proceed' functionality here
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFCFF008),  // Button color
+                  backgroundColor: Color(0xFFCFF008),
                 ),
                 child: Text('Save & Proceed'),
               ),

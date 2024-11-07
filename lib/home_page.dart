@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async'; // Import for Timer
 import 'upload.dart'; // Import the Upload page
 
 class HomePage extends StatefulWidget {
@@ -10,23 +11,31 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Automatically change the carousel every 3 seconds
-    Future.delayed(Duration(seconds: 3), () {
+    // Set up a timer to automatically move to the next page every 3 seconds
+    _timer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
       if (_currentPage < 3) {
-        _pageController.animateToPage(
-          _currentPage + 1,
-          duration: Duration(milliseconds: 300),
-          curve: Curves.linear,
-        );
+        _currentPage++;
+      } else {
+        _currentPage = 0; // Reset to the first page
       }
-      setState(() {
-        _currentPage = (_currentPage + 1) % 4; // Loop through pages
-      });
+      _pageController.animateToPage(
+        _currentPage,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linear,
+      );
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,7 +53,6 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
-              // Show a dummy message when notification is clicked
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -68,15 +76,13 @@ class _HomePageState extends State<HomePage> {
         leading: IconButton(
           icon: Icon(Icons.menu, color: Color(0xFFCFF008)),
           onPressed: () {
-            _scaffoldKey.currentState?.openDrawer(); // Open the drawer
+            _scaffoldKey.currentState?.openDrawer();
           },
         ),
       ),
       body: SingleChildScrollView(
-        // Make the content scrollable
         child: Column(
           children: [
-            // Carousel Section
             Container(
               height: 200,
               child: PageView(
@@ -91,7 +97,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(height: 20),
-            // Text Section
             Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -113,18 +118,15 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(height: 20),
-            // Buttons Section with Images
             Column(
               children: [
-                // Container with a border for the first image
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color(0xFFCFF008), // Border color
-                      width: 4, // Border width
+                      color: Color(0xFFCFF008),
+                      width: 4,
                     ),
-                    borderRadius: BorderRadius.circular(
-                        8), // Optional: for rounded corners
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Image.asset(
                     'assets/color.png',
@@ -135,30 +137,27 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to the Upload page for Color print
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            Upload(selectedColor: 'Color'), // Pass color
+                            Upload(selectedColor: 'Color'),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFCFF008), // Button color
+                    backgroundColor: Color(0xFFCFF008),
                   ),
                   child: Text('Click here for Color print'),
                 ),
                 SizedBox(height: 30),
-                // Container with a border for the second image
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color(0xFFCFF008), // Border color
-                      width: 4, // Border width
+                      color: Color(0xFFCFF008),
+                      width: 4,
                     ),
-                    borderRadius: BorderRadius.circular(
-                        8), // Optional: for rounded corners
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Image.asset(
                     'assets/bw.png',
@@ -169,21 +168,20 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to the Upload page for B/W print
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            Upload(selectedColor: 'Black and white'), // Pass B/W
+                            Upload(selectedColor: 'Black and white'),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFCFF008), // Button color
+                    backgroundColor: Color(0xFFCFF008),
                   ),
                   child: Text('Click here for B/W print'),
                 ),
-                SizedBox(height: 20), // Add this SizedBox below the B/W print button
+                SizedBox(height: 20),
               ],
             ),
           ],
@@ -232,7 +230,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Helper method to create drawer items
   Widget _buildDrawerItem(IconData icon, String title) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
@@ -241,8 +238,7 @@ class _HomePageState extends State<HomePage> {
         style: TextStyle(color: Colors.white),
       ),
       onTap: () {
-        // Handle navigation for each item here
-        Navigator.pop(context); // Close the drawer after selection
+        Navigator.pop(context);
       },
     );
   }
