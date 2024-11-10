@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'location_service.dart';  // Import location_service.dart
+import 'package:logger/logger.dart';
+import 'location_service.dart'; // Import location_service.dart
 
 class AccountPage extends StatefulWidget {
   @override
@@ -23,6 +24,7 @@ class _AccountPageState extends State<AccountPage> {
   File? _imageFile; // For storing selected image
   final ImagePicker _picker = ImagePicker(); // For picking image from mobile
   bool _isEditable = false; // Flag to toggle edit mode for phone number and address
+  var logger = Logger();
 
   @override
   void initState() {
@@ -32,7 +34,6 @@ class _AccountPageState extends State<AccountPage> {
     // Fetch and display saved user details if available
     if (user != null) {
       _phoneController.text = user!.phoneNumber ?? '';
-
       // Fetch additional data from Firestore
       _getUserDetails();
     }
@@ -51,10 +52,11 @@ class _AccountPageState extends State<AccountPage> {
           _cityController.text = userDoc['city'] ?? '';
           _stateController.text = userDoc['state'] ?? '';
           _pincodeController.text = userDoc['pincode'] ?? '';
+          _phoneController.text = userDoc['phone_number'] ?? ''; // Update phone number from Firestore
         });
       }
     } catch (e) {
-      print("Error fetching user details: $e");
+      logger.e("Error fetching user details: $e");
     }
   }
 
@@ -92,7 +94,6 @@ class _AccountPageState extends State<AccountPage> {
         _stateController.text.isEmpty ||
         _pincodeController.text.isEmpty ||
         _phoneController.text.isEmpty) {
-      // Show a snackbar if any of the fields are empty
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Please fill in all fields!'),
         backgroundColor: Colors.red,
@@ -130,7 +131,7 @@ class _AccountPageState extends State<AccountPage> {
       await firestore.collection('users').doc(user?.uid).set(userData, SetOptions(merge: true));
 
       // Log the saved information
-      print("Information saved: $userData");
+      logger.i("Information saved: $userData");
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -138,7 +139,6 @@ class _AccountPageState extends State<AccountPage> {
         backgroundColor: Colors.green,
       ));
     } catch (error) {
-      // Show error message if saving fails
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to save data: $error'),
         backgroundColor: Colors.red,
@@ -158,7 +158,7 @@ class _AccountPageState extends State<AccountPage> {
           _cityController.text = locationData['city'] ?? '';
         });
       } catch (e) {
-        print("Error fetching location data: $e");
+        logger.e("Error fetching location data: $e");
       }
     }
   }
@@ -166,18 +166,17 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Set background to black for the entire account page
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 11, 11, 11),
-        title: Text('Account',style: TextStyle(color: Colors.white)),
+        title: Text('Account', style: TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFFCFF008)), // Custom back arrow color
+          icon: Icon(Icons.arrow_back, color: Color(0xFFCFF008)),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         actions: [
-          // Edit Icon on the top-right corner for enabling editing mode
           IconButton(
             icon: Icon(Icons.edit, color: Color(0xFFCFF008)),
             onPressed: () {
@@ -194,25 +193,22 @@ class _AccountPageState extends State<AccountPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile image picker section
               Align(
                 alignment: Alignment.topCenter,
                 child: CircleAvatar(
-                  radius: 50, // Size of the profile image
+                  radius: 50,
                   backgroundColor: Colors.grey,
                   backgroundImage: _imageFile == null
-                      ? NetworkImage(user?.photoURL ?? 'https://www.example.com/default-image.jpg') // Default image if no image selected
-                      : FileImage(_imageFile!) as ImageProvider, // Display the selected image
+                      ? NetworkImage(user?.photoURL ?? 'https://www.example.com/default-image.jpg')
+                      : FileImage(_imageFile!) as ImageProvider,
                 ),
               ),
-              SizedBox(height: 20), // Space between profile image and form
-
-              // Edit Image Button
+              SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
                   onPressed: _pickImage,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFCFF008), // Edit button color
+                    backgroundColor: Color(0xFFCFF008),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -222,17 +218,13 @@ class _AccountPageState extends State<AccountPage> {
                 ),
               ),
               SizedBox(height: 20),
-
-              // Editable or Non-editable user details
               user != null
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // First Name and Last Name (Not editable)
                         Text('First Name', style: TextStyle(color: Colors.white, fontSize: 18)),
                         Text(user?.displayName?.split(' ')[0] ?? 'N/A', style: TextStyle(color: Colors.white)),
                         SizedBox(height: 10),
-
                         Text('Last Name', style: TextStyle(color: Colors.white, fontSize: 18)),
                         Text(
                           (user?.displayName?.split(' ').length ?? 0) > 1
@@ -241,154 +233,148 @@ class _AccountPageState extends State<AccountPage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         SizedBox(height: 20),
-
-                        // Email (Not editable)
                         Text('Email', style: TextStyle(color: Colors.white, fontSize: 18)),
                         Text(user?.email ?? 'N/A', style: TextStyle(color: Colors.white)),
                         SizedBox(height: 20),
-
-                        // Address form (editable)
+                        Text('Phone Number', style: TextStyle(color: Colors.white)),
+                        TextField(
+                          controller: _phoneController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        // Address Fields
                         Text('Door No.', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _doorNoController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _doorNoController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text('Street', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _streetController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _streetController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text('Area', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _areaController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _areaController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text('City', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _cityController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _cityController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text('State', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _stateController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _stateController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text('Pincode', style: TextStyle(color: Colors.white)),
                         TextField(
-  controller: _pincodeController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-  onChanged: (value) {
-    // Auto-fill state and district based on pincode
-    _autoFillLocation();
-  },
-),
-                        SizedBox(height: 10),
-                        Text('Phone Number', style: TextStyle(color: Colors.white)),
-                        TextField(
-  controller: _phoneController,
-  enabled: _isEditable,
-  style: TextStyle(color: Colors.white),
-  decoration: InputDecoration(
-    fillColor: Colors.grey[800],
-    filled: true,
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0), // Default border color
-    ),
-  ),
-),
+                          controller: _pincodeController,
+                          enabled: _isEditable,
+                          style: TextStyle(color: Colors.white),
+                          onChanged: (value) {
+                            _autoFillLocation();
+                          },
+                          decoration: InputDecoration(
+                            fillColor: Colors.grey[800],
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCFF008), width: 2.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!, width: 1.0),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 20),
-
-                        // Save Button
                         Center(
                           child: ElevatedButton(
                             onPressed: _saveData,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFCFF008), // Save button color
+                              backgroundColor: Color(0xFFCFF008),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                             ),
-                            child: Text('Save Data', style: TextStyle(color: Colors.black)),
+                            child: Text('Save Details', style: TextStyle(color: Colors.black)),
                           ),
                         ),
                       ],
                     )
-                  : CircularProgressIndicator(),
+                  : Container(),
             ],
           ),
         ),
