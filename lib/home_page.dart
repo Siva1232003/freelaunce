@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; // Import for Timer
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'upload.dart'; // Import the Upload page
+import 'auth_page.dart'; // Add this import
+import 'account_page.dart';
+
+
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,10 +19,12 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
+  User? user; // Firebase user
 
   @override
   void initState() {
     super.initState();
+    _initializeUser();
     // Set up a timer to automatically move to the next page every 3 seconds
     _timer = Timer.periodic(Duration(seconds: 3), (Timer timer) {
       if (_currentPage < 3) {
@@ -31,9 +40,37 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _initializeUser() async {
+    // Get the currently signed-in user
+    user = FirebaseAuth.instance.currentUser;
+    setState(() {});
+  }
+
+  Future<void> _signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser != null) {
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      user = FirebaseAuth.instance.currentUser;
+      setState(() {});
+    }
+  }
+
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn().signOut();
+    user = null;
+    setState(() {});
+  }
+
   @override
   void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -193,23 +230,65 @@ class _HomePageState extends State<HomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.grey[850],
+  decoration: BoxDecoration(
+    color: Colors.grey[850],
+  ),
+  child: SingleChildScrollView( // Wrap this with SingleChildScrollView
+    child: user != null
+        ? Column(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundImage: NetworkImage(user!.photoURL ?? ''),
               ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+              SizedBox(height: 10),
+              Text(
+                user!.displayName ?? 'User',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
-            ),
-            _buildDrawerItem(Icons.settings, 'Settings'),
-            _buildDrawerItem(Icons.account_circle, 'Account'),
+              Text(
+                user!.email ?? '',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+            ],
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Not signed in',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              TextButton(
+                onPressed: _signInWithGoogle,
+                child: Text('Sign in with Google'),
+              ),
+            ],
+          ),
+  ),
+),
+
+            
+            
+            _buildDrawerItem(Icons.account_circle, 'Account', onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => AccountPage()),
+  );
+}),
+
             _buildDrawerItem(Icons.list, 'Orders'),
             _buildDrawerItem(Icons.history, 'History'),
             _buildDrawerItem(Icons.info, 'About Us'),
-            _buildDrawerItem(Icons.logout, 'Logout'),
+            _buildDrawerItem(Icons.settings, 'Settings'),
+            _buildDrawerItem(Icons.logout, 'Logout', onTap: () async {
+  await _signOut();
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => SignInSignUpPage()),
+  );
+}),
+
           ],
         ),
       ),
@@ -230,14 +309,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title) {
+  Widget _buildDrawerItem(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
         style: TextStyle(color: Colors.white),
       ),
-      onTap: () {
+      onTap: onTap ?? () {
         Navigator.pop(context);
       },
     );
